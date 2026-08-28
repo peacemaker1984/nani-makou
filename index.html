@@ -83,6 +83,8 @@
     <button class="tab active" data-cat="all">全</button>
     <button class="tab" data-cat="dry">ドライ</button>
     <button class="tab" data-cat="nw">ニンフ、ウェット</button>
+    <button class="tab" data-cat="bass">バス・ギル</button>
+    <button class="tab" data-cat="salt">ソルト</button>
   </div>
 
   <div class="wheel-wrap">
@@ -115,6 +117,19 @@ const flies = {
  wet:[
  "マーチブラウン","マドラーミノー","ガバナー","アレキサンドラ",
  "ホスキンス","プロフェッサー","グリズリーキング","ウーリーバガー"
+ ],
+ bass:[
+ "ブービーフライ","ヘアバグ","モンタナニンフ","マドラーミノー",
+ "マウスガーグラー","シェニールワーム","ポップリップ","ザリガニゾンカー",
+ "クリースフライ","発泡ヘッドダイバー","ビッチクリーク","モホーク",
+ "ヘンハックルアダムス","フロッグ","バスマドラー","ポッピングミノー",
+ "マダムX","キモゼミ","ドラワカ"
+ ],
+ salt:[
+ "ラビットゾンカー","ラビットマツーカ","マラブーマツーカ",
+ "マラブーハックルストリーマー","白の10番","イカフライ","エビフライ",
+ "えさフライ","クラウザーミノー","レフティズデシーバー","バチガーグラー",
+ "シュリンプ","スカッド","クレイジーチャーリー","ポッパーストリーマー"
  ]
 };
 
@@ -126,7 +141,9 @@ let category="all", angle=0, spinning=false, lastLive="";
 function items(){
  if(category==="dry") return flies.dry;
  if(category==="nw") return [...flies.nymph,...flies.wet];
- return [...flies.dry,...flies.nymph,...flies.wet];
+ if(category==="bass") return flies.bass;
+ if(category==="salt") return flies.salt;
+ return [...flies.dry,...flies.nymph,...flies.wet,...flies.bass,...flies.salt];
 }
 
 function color(i){
@@ -147,11 +164,10 @@ function draw(){
    ctx.save();
    ctx.rotate(mid);
 
-   // 縦書き風：外周から中心方向へ1文字ずつ並べる
    const text=list[i];
-   const fs=n>30?18:n>20?22:25;
+   const fs=n>60?13:n>40?16:n>30?18:n>20?22:25;
    const step=fs*1.03;
-   const maxChars=n>30?13:15;
+   const maxChars=n>60?12:n>30?13:15;
    const shown=text.length>maxChars ? text.slice(0,maxChars-1)+"…" : text;
 
    ctx.fillStyle="#20251f";
@@ -166,7 +182,6 @@ function draw(){
      ctx.save();
      ctx.translate(rr,0);
 
-     // 英数字・記号は読みやすいよう90度回転、日本語は立てる
      if(/[A-Za-z0-9&・\-]/.test(ch)){
        ctx.rotate(Math.PI/2);
      }
@@ -220,7 +235,6 @@ spin.addEventListener("click",()=>{
 
  function animate(now){
    let t=Math.min((now-start)/duration,1);
-   // cubic ease-out
    const eased=1-Math.pow(1-t,3);
    angle=startAngle+total*eased;
    draw();
