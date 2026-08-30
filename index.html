@@ -4,79 +4,372 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>なに巻こう</title>
+
 <style>
-  :root{
-    --bg:#f3efe4; --ink:#20251f; --muted:#6b7168;
-    --panel:#fffdf7; --accent:#314b37; --accent2:#b87938;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; min-height:100vh; display:flex; justify-content:center;
-    background:var(--bg); color:var(--ink);
-    font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
-  }
-  main{width:min(94vw,720px); padding:28px 16px 42px; text-align:center}
-  .kicker{font-size:.82rem; letter-spacing:.16em; color:var(--muted); line-height:1.65}
-  h1{font-size:clamp(2.4rem,9vw,4.8rem); margin:.05em 0 .35em; letter-spacing:.04em}
-  .tabs{display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:18px}
-  .tab{
-    border:1px solid #9ba095; background:var(--panel); color:var(--ink);
-    border-radius:999px; padding:9px 17px; font-weight:700; cursor:pointer;
-  }
-  .tab.active{background:var(--accent); color:white; border-color:var(--accent)}
-  .wheel-wrap{position:relative; width:min(82vw,520px); aspect-ratio:1; margin:0 auto}
-  canvas{width:100%; height:100%; display:block; filter:drop-shadow(0 8px 13px #0002)}
-  .pointer{
-    position:absolute; top:-4px; left:50%; transform:translateX(-50%);
-    width:0; height:0; border-left:18px solid transparent;
-    border-right:18px solid transparent; border-top:34px solid var(--accent2);
-    z-index:3;
-  }
-  .result{
-    min-height:2.4em; margin:18px auto 10px; font-weight:800;
-    font-size:clamp(1.25rem,4.5vw,2rem);
-  }
-  #spin{
-    border:0; border-radius:12px; padding:14px 38px;
-    background:var(--accent2); color:#fff; font-size:1.25rem;
-    font-weight:900; cursor:pointer; box-shadow:0 4px 0 #7d4e20;
-  }
-  #spin:active{transform:translateY(2px); box-shadow:0 2px 0 #7d4e20}
-  #spin:disabled{opacity:.6; cursor:not-allowed}
-  .note{margin-top:13px; color:var(--muted); font-size:.82rem}
-  .credit{
-    margin-top:26px;
-    font-size:.82rem;
-    letter-spacing:.12em;
-    color:var(--muted);
-    font-weight:700;
-  }
-  .live{
-    margin:10px auto 4px;
-    min-height:1.8em;
-    font-size:1rem;
-    font-weight:700;
-    color:var(--muted);
+:root{
+  --bg:#f3efe4;
+  --ink:#20251f;
+  --muted:#6b7168;
+  --panel:#fffdf7;
+  --accent:#314b37;
+  --accent2:#b87938;
+  --line:#d8d1c3;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+}
+
+body{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+}
+
+main{
+  width:min(94vw,720px);
+  min-height:100dvh;
+  padding:22px 16px 28px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.kicker{
+  font-size:.80rem;
+  letter-spacing:.16em;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+h1{
+  font-size:clamp(2.4rem,8vw,4.6rem);
+  margin:.03em 0 .25em;
+  letter-spacing:.04em;
+}
+
+.tabs{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.tab{
+  border:1px solid #9ba095;
+  background:var(--panel);
+  color:var(--ink);
+  border-radius:999px;
+  padding:8px 15px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:var(--accent);
+  color:white;
+  border-color:var(--accent);
+}
+
+
+/* =========================
+   スロット
+   ========================= */
+
+.slot-wrap{
+  position:relative;
+  width:min(92vw,560px);
+  margin:0 auto;
+}
+
+.slot-window{
+  position:relative;
+  overflow:hidden;
+  background:var(--panel);
+  border:3px solid var(--accent);
+  border-radius:18px;
+  box-shadow:0 8px 18px #0002;
+}
+
+.slot-row{
+  height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 42px;
+  border-bottom:1px solid var(--line);
+  font-size:clamp(.95rem,3.5vw,1.25rem);
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#697068;
+}
+
+.slot-row:last-child{
+  border-bottom:0;
+}
+
+.slot-row.center{
+  height:60px;
+  background:#eee3c8;
+  color:var(--ink);
+  font-size:clamp(1.15rem,4vw,1.55rem);
+  font-weight:900;
+}
+
+
+/* 中央の選択マーカー */
+
+.slot-pointer{
+  position:absolute;
+  top:50%;
+  left:9px;
+  transform:translateY(-50%);
+  color:var(--accent2);
+  font-size:1.8rem;
+  font-weight:900;
+  z-index:5;
+}
+
+.slot-pointer.right{
+  left:auto;
+  right:9px;
+  transform:translateY(-50%) rotate(180deg);
+}
+
+
+/* 上下を少し暗く */
+
+.slot-window::before,
+.slot-window::after{
+  content:"";
+  position:absolute;
+  left:0;
+  width:100%;
+  height:46px;
+  z-index:4;
+  pointer-events:none;
+}
+
+.slot-window::before{
+  top:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(243,239,228,.85),
+    rgba(243,239,228,0)
+  );
+}
+
+.slot-window::after{
+  bottom:0;
+  background:linear-gradient(
+    to top,
+    rgba(243,239,228,.85),
+    rgba(243,239,228,0)
+  );
+}
+
+
+/* =========================
+   結果・ボタン
+   ========================= */
+
+.live{
+  margin:10px auto 0;
+  min-height:1.5em;
+  font-size:.92rem;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.result{
+  min-height:2em;
+  margin:5px auto 8px;
+  font-weight:900;
+  font-size:clamp(1.25rem,4.5vw,2rem);
+}
+
+#spin{
+  border:0;
+  border-radius:12px;
+  padding:13px 38px;
+  background:var(--accent2);
+  color:#fff;
+  font-size:1.22rem;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 4px 0 #7d4e20;
+}
+
+#spin:active{
+  transform:translateY(2px);
+  box-shadow:0 2px 0 #7d4e20;
+}
+
+#spin:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.note{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:.78rem;
+}
+
+.credit{
+  margin-top:14px;
+  font-size:.78rem;
+  letter-spacing:.12em;
+  color:var(--muted);
+  font-weight:700;
+}
+
+
+/* =========================
+   スマホ
+   ========================= */
+
+@media (max-width:600px){
+
+  main{
+    width:100%;
+    min-height:100dvh;
+    padding:8px 8px 10px;
+    justify-content:flex-start;
   }
 
-  @media (max-width: 600px){
-    main{width:100%; padding:18px 8px 28px}
-    .kicker{font-size:.72rem; letter-spacing:.12em}
-    h1{font-size:clamp(2.3rem,15vw,4rem); margin:.02em 0 .25em}
-    .tabs{gap:6px; margin-bottom:10px}
-    .tab{padding:8px 12px; font-size:.92rem}
-    .wheel-wrap{width:min(98vw,560px)}
-    .pointer{border-left-width:15px; border-right-width:15px; border-top-width:29px}
-    .live{font-size:.95rem; margin-top:8px}
-    .result{font-size:clamp(1.35rem,7vw,2.2rem); margin:10px auto 8px; min-height:2.2em}
-    #spin{width:min(88vw,360px); padding:15px 28px; font-size:1.2rem}
-    .note{font-size:.76rem; padding:0 8px}
+  .kicker{
+    font-size:.68rem;
+    line-height:1.35;
+    letter-spacing:.11em;
   }
+
+  h1{
+    font-size:clamp(2.15rem,13vw,3.4rem);
+    margin:0 0 .12em;
+  }
+
+  .tabs{
+    gap:5px;
+    margin-bottom:8px;
+  }
+
+  .tab{
+    padding:6px 10px;
+    font-size:.82rem;
+  }
+
+  .slot-wrap{
+    width:96vw;
+  }
+
+  .slot-row{
+    height:44px;
+    padding:0 35px;
+    font-size:.95rem;
+  }
+
+  .slot-row.center{
+    height:52px;
+    font-size:1.15rem;
+  }
+
+  .slot-pointer{
+    font-size:1.4rem;
+  }
+
+  .live{
+    margin-top:6px;
+    font-size:.78rem;
+  }
+
+  .result{
+    margin:3px auto 5px;
+    min-height:1.8em;
+    font-size:clamp(1.2rem,5.6vw,1.65rem);
+  }
+
+  #spin{
+    width:min(84vw,340px);
+    padding:11px 24px;
+    font-size:1.1rem;
+  }
+
+  .note{
+    margin-top:6px;
+    font-size:.68rem;
+  }
+
+  .credit{
+    margin-top:7px;
+    font-size:.68rem;
+  }
+}
+
+
+/* 高さの小さいスマホ */
+
+@media (max-height:700px) and (max-width:600px){
+
+  h1{
+    font-size:2.5rem;
+  }
+
+  .slot-row{
+    height:38px;
+  }
+
+  .slot-row.center{
+    height:46px;
+  }
+
+  .tab{
+    padding:5px 9px;
+    font-size:.78rem;
+  }
+
+  .result{
+    font-size:1.25rem;
+  }
+
+  #spin{
+    padding:9px 22px;
+  }
+
+  .note{
+    margin-top:4px;
+  }
+
+  .credit{
+    margin-top:4px;
+  }
+}
+
 </style>
 </head>
+
 <body>
+
 <main>
-  <div class="kicker">フライタイイング<br>フライ選択ルーレット</div>
+
+  <div class="kicker">
+    フライタイイング<br>
+    フライ選択ルーレット
+  </div>
+
   <h1>なに巻こう</h1>
 
   <div class="tabs" aria-label="カテゴリー">
@@ -87,20 +380,56 @@
     <button class="tab" data-cat="salt">ソルト</button>
   </div>
 
-  <div class="wheel-wrap">
-    <div class="pointer"></div>
-    <canvas id="wheel" width="1000" height="1000"></canvas>
+
+  <div class="slot-wrap">
+
+    <div class="slot-pointer">▶</div>
+    <div class="slot-pointer right">▶</div>
+
+    <div class="slot-window" id="slotWindow">
+
+      <div class="slot-row" id="slot0"></div>
+      <div class="slot-row" id="slot1"></div>
+      <div class="slot-row center" id="slot2"></div>
+      <div class="slot-row" id="slot3"></div>
+      <div class="slot-row" id="slot4"></div>
+
+    </div>
+
   </div>
 
-  <div id="live" class="live">候補を選んで「巻くよ？」</div>
-  <div id="result" class="result">さて、なに巻こう。</div>
-  <button id="spin">巻くよ？</button>
-  <div class="note">ボタンを押すと5秒間回って、自動で止まります。</div>
-  <div class="credit">平和製作所</div>
+
+  <div id="live" class="live">
+    候補を選んで「巻くよ？」
+  </div>
+
+  <div id="result" class="result">
+    さて、なに巻こう。
+  </div>
+
+  <button id="spin">
+    巻くよ？
+  </button>
+
+  <div class="note">
+    ボタンを押すと約3.5秒間回って、自動で止まります。
+  </div>
+
+  <div class="credit">
+    平和製作所
+  </div>
+
 </main>
 
+
 <script>
+
+/* =========================
+   フライ一覧
+   ========================= */
+
 const flies = {
+
  dry:[
  "エルクヘアカディス","アダムスパラシュート","DHBエルク","ロイヤルコーチマン",
  "アイカザイム","マシュマロピューパ","M&E","グリフィスナット","0ファイバーカディス",
@@ -109,15 +438,18 @@ const flies = {
  "ホットワックス・ギャップダン","ネバーシンクスケーター","DHBシケーダ",
  "ピーコックハールパラシュート","クロカワパラシュート","シナモンアント"
  ],
+
  nymph:[
  "O&P","G&P","ブラックナット","ゴールドリブドヘヤズイヤー","フェザントテールニンフ",
  "ヘアーズイヤー","パピーリーチ","ヘアラーバ","クロスオーストリッチ",
  "アグリーニンフ","マイクロエッグ"
  ],
+
  wet:[
  "マーチブラウン","マドラーミノー","ガバナー","アレキサンドラ",
  "ホスキンス","プロフェッサー","グリズリーキング","ウーリーバガー"
  ],
+
  bass:[
  "ブービーフライ","ヘアバグ","モンタナニンフ","マドラーミノー",
  "マウスガーグラー","シェニールワーム","ポップリップ","ザリガニゾンカー",
@@ -125,132 +457,244 @@ const flies = {
  "ヘンハックルアダムス","フロッグ","バスマドラー","ポッピングミノー",
  "マダムX","キモゼミ","ドラワカ"
  ],
+
  salt:[
  "ラビットゾンカー","ラビットマツーカ","マラブーマツーカ",
  "マラブーハックルストリーマー","白の10番","イカフライ","エビフライ",
  "えさフライ","クラウザーミノー","レフティズデシーバー","バチガーグラー",
  "シュリンプ","スカッド","クレイジーチャーリー","ポッパーストリーマー"
  ]
+
 };
 
-const canvas=document.getElementById("wheel"), ctx=canvas.getContext("2d");
-const result=document.getElementById("result"), spin=document.getElementById("spin");
+
+/* =========================
+   基本設定
+   ========================= */
+
+const rows=[
+ document.getElementById("slot0"),
+ document.getElementById("slot1"),
+ document.getElementById("slot2"),
+ document.getElementById("slot3"),
+ document.getElementById("slot4")
+];
+
+const result=document.getElementById("result");
+const spin=document.getElementById("spin");
 const live=document.getElementById("live");
-let category="all", angle=0, spinning=false, lastLive="";
+
+let category="all";
+let spinning=false;
+let currentIndex=0;
+
+
+/* =========================
+   カテゴリー
+   ========================= */
 
 function items(){
- if(category==="dry") return flies.dry;
- if(category==="nw") return [...flies.nymph,...flies.wet];
- if(category==="bass") return flies.bass;
- if(category==="salt") return flies.salt;
- return [...flies.dry,...flies.nymph,...flies.wet,...flies.bass,...flies.salt];
+
+ if(category==="dry"){
+   return flies.dry;
+ }
+
+ if(category==="nw"){
+   return [...flies.nymph,...flies.wet];
+ }
+
+ if(category==="bass"){
+   return flies.bass;
+ }
+
+ if(category==="salt"){
+   return flies.salt;
+ }
+
+ return [
+   ...flies.dry,
+   ...flies.nymph,
+   ...flies.wet,
+   ...flies.bass,
+   ...flies.salt
+ ];
+
 }
 
-function color(i){
- const palette=["#e8d9ad","#a9bea8","#d5b184","#b6c6c8","#d7c49d","#9fb29c","#c8a77e","#c6d0bd"];
- return palette[i%palette.length];
+
+/* =========================
+   スロット表示
+   ========================= */
+
+function renderSlot(index){
+
+ const list=items();
+ const n=list.length;
+
+ for(let offset=-2;offset<=2;offset++){
+
+   let i=(index+offset+n)%n;
+
+   rows[offset+2].textContent=list[i];
+
+ }
+
 }
 
-function draw(){
- const list=items(), n=list.length, cx=500, cy=500, r=475;
- ctx.clearRect(0,0,1000,1000);
- ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle);
- for(let i=0;i<n;i++){
-   const a0=i*2*Math.PI/n-Math.PI/2, a1=(i+1)*2*Math.PI/n-Math.PI/2;
-   ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r,a0,a1); ctx.closePath();
-   ctx.fillStyle=color(i); ctx.fill(); ctx.strokeStyle="#fff8"; ctx.lineWidth=2; ctx.stroke();
 
-   const mid=(a0+a1)/2;
-   ctx.save();
-   ctx.rotate(mid);
+/* 縦に流れる感じを出す */
 
-   const text=list[i];
-   const fs=n>60?13:n>40?16:n>30?18:n>20?22:25;
-   const step=fs*1.03;
-   const maxChars=n>60?12:n>30?13:15;
-   const shown=text.length>maxChars ? text.slice(0,maxChars-1)+"…" : text;
+function animateRows(speed){
 
-   ctx.fillStyle="#20251f";
-   ctx.textAlign="center";
-   ctx.textBaseline="middle";
-   ctx.font=`700 ${fs}px "Yu Gothic",sans-serif`;
+ rows.forEach(row=>{
 
-   const startR=r*.80;
-   for(let j=0;j<shown.length;j++){
-     const ch=shown[j];
-     const rr=startR-j*step;
-     ctx.save();
-     ctx.translate(rr,0);
+   row.animate(
 
-     if(/[A-Za-z0-9&・\-]/.test(ch)){
-       ctx.rotate(Math.PI/2);
+     [
+       {
+         transform:"translateY(-18px)",
+         opacity:.35
+       },
+       {
+         transform:"translateY(0)",
+         opacity:1
+       }
+     ],
+
+     {
+       duration:Math.min(speed,220),
+       easing:"ease-out"
      }
-     ctx.fillText(ch,0,0);
-     ctx.restore();
-   }
-   ctx.restore();
- }
- ctx.beginPath(); ctx.arc(0,0,66,0,Math.PI*2);
- ctx.fillStyle="#314b37"; ctx.fill();
- ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2);
- ctx.fillStyle="#fffdf7"; ctx.fill();
- ctx.restore();
-}
 
-function winner(){
- const list=items(), n=list.length, slice=2*Math.PI/n;
- const normalized=(((-angle)% (2*Math.PI))+2*Math.PI)%(2*Math.PI);
- const idx=Math.floor(normalized/slice)%n;
- return list[idx];
-}
+   );
 
-function updateLive(){
- const w=winner();
- if(w!==lastLive){
-   live.textContent="▶ "+w;
-   lastLive=w;
- }
-}
-
-document.querySelectorAll(".tab").forEach(b=>{
- b.addEventListener("click",()=>{
-   if(spinning) return;
-   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-   b.classList.add("active"); category=b.dataset.cat; angle=0;
-   result.textContent="さて、なに巻こう。";
-   live.textContent="候補を選んで「巻くよ？」";
-   lastLive="";
-   draw();
  });
+
+}
+
+
+/* =========================
+   カテゴリーボタン
+   ========================= */
+
+document.querySelectorAll(".tab").forEach(button=>{
+
+ button.addEventListener("click",()=>{
+
+   if(spinning){
+     return;
+   }
+
+   document.querySelectorAll(".tab").forEach(x=>{
+     x.classList.remove("active");
+   });
+
+   button.classList.add("active");
+
+   category=button.dataset.cat;
+
+   currentIndex=0;
+
+   renderSlot(currentIndex);
+
+   result.textContent="さて、なに巻こう。";
+
+   live.textContent="候補を選んで「巻くよ？」";
+
+ });
+
 });
+
+
+/* =========================
+   スロット開始
+   ========================= */
 
 spin.addEventListener("click",()=>{
- if(spinning) return;
- spinning=true; spin.disabled=true; result.textContent="選定中……";
- const start=performance.now(), duration=5000;
- const startAngle=angle;
- const turns=9+Math.random()*5;
- const extra=Math.random()*Math.PI*2;
- const total=turns*Math.PI*2+extra;
 
- function animate(now){
-   let t=Math.min((now-start)/duration,1);
-   const eased=1-Math.pow(1-t,3);
-   angle=startAngle+total*eased;
-   draw();
-   updateLive();
-   if(t<1) requestAnimationFrame(animate);
-   else{
-     spinning=false; spin.disabled=false;
-     const w=winner();
-     live.textContent="決定";
-     result.textContent="今日は「"+w+"」！";
-   }
+ if(spinning){
+   return;
  }
- requestAnimationFrame(animate);
+
+ spinning=true;
+
+ spin.disabled=true;
+
+ result.textContent="選定中……";
+
+ live.textContent="回転中";
+
+ const list=items();
+
+ const finalIndex=
+   Math.floor(Math.random()*list.length);
+
+ const startTime=performance.now();
+
+ const duration=3500;
+
+
+ function step(){
+
+   const elapsed=
+     performance.now()-startTime;
+
+   const progress=
+     Math.min(elapsed/duration,1);
+
+
+   /* 最初は高速、最後はゆっくり */
+
+   const delay=
+     55 + Math.pow(progress,3)*420;
+
+
+   currentIndex=
+     (currentIndex+1)%list.length;
+
+
+   renderSlot(currentIndex);
+
+   animateRows(delay);
+
+
+   if(progress<1){
+
+     setTimeout(step,delay);
+
+   }
+
+   else{
+
+     currentIndex=finalIndex;
+
+     renderSlot(currentIndex);
+
+     const winner=list[currentIndex];
+
+     live.textContent="決定";
+
+     result.textContent=
+       "今日は「"+winner+"」！";
+
+     spinning=false;
+
+     spin.disabled=false;
+
+   }
+
+ }
+
+ step();
+
 });
 
-draw();
+
+/* 最初の表示 */
+
+renderSlot(currentIndex);
+
 </script>
+
 </body>
 </html>
