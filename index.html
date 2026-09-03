@@ -691,8 +691,9 @@ spin.addEventListener("click",()=>{
 });
 
 
-/* 最初の表示 */
+/* 最初の表示をランダムに */
 
+currentIndex = Math.floor(Math.random() * items().length);
 renderSlot(currentIndex);
 
 </script>
