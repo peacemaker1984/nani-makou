@@ -594,7 +594,7 @@ document.querySelectorAll(".tab").forEach(button=>{
 
    category=button.dataset.cat;
 
-   currentIndex=0;
+   currentIndex = Math.floor(Math.random() * items().length);
 
    renderSlot(currentIndex);
 
